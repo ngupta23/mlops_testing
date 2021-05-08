@@ -74,3 +74,9 @@ jobs:
           branch: ${{ github.ref }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           force: true
+
+      # Access secrets per https://docs.github.com/en/actions/reference/encrypted-secrets
+      - name: Check access for secrets
+        with: # Set the secret as an input
+          super_secret: ${{ secrets.SuperSecret }}
+        run: python analysis/access_secret.py
