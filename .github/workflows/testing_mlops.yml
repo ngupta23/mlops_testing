@@ -38,7 +38,7 @@ jobs:
         python analysis/sum.py
         python analysis/diff.py
     - name: Run single notebook using `nbconvert`
-      run: jupyter nbconvert --to notebook --inplace --execute analysis/my_notebook_nbconvert.ipynb
+      run: jupyter nbconvert --to notebook --execute analysis/my_notebook.ipynb
     - name: Run single notebook using `papermill`
       run: papermill analysis/my_notebook.ipynb analysis/my_notebook_papermill.ipynb
         
