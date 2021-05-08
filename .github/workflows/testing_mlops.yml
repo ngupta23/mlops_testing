@@ -4,9 +4,8 @@ name: testing_mlops
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
-on:
-  workflow_dispatch
-    
+on: workflow_dispatch
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
@@ -19,33 +18,31 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-    # Runs a single command using the runners shell
-    - name: Run single script
-      run: python analysis/sum.py        
-    # If running multiple commands in sequence, we need to add | before the run
-    - name: Run multiple scripts
-      run: | 
-        python analysis/sum.py
-        python analysis/diff.py
-    - name: Run single notebook using `nbconvert`
-      run: |
-        pip install ipykernel
-        python -m ipykernel install --user
-        jupyter kernelspec list
-        jupyter nbconvert --to notebook --ExecutePreprocessor.kernel_name=python3 --execute analysis/my_notebook.ipynb       
-    - name: Run single notebook using `papermill`
-      run: papermill -k python3 analysis/my_notebook.ipynb analysis/my_notebook_papermill.ipynb
-        
-      
-
-
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Add dependencies including ipython and ipykernel. This is needed for
+      # running notebooks with GitHub Actions.
+      # Install and register an IPython kernel with Jupyter per
+      # https://ipython.readthedocs.io/en/stable/install/index.html
+      # NOTE: pip install ipykernel is done through requirements.txt here.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          python -m ipykernel install --user
+      # Runs a single command using the runners shell
+      - name: Run single script
+        run: python analysis/sum.py
+      # If running multiple commands in sequence, we need to add | before the run
+      - name: Run multiple scripts
+        run: |
+          python analysis/sum.py
+          python analysis/diff.py
+      - name: Run single notebook using `nbconvert`
+        run: jupyter nbconvert --to notebook --ExecutePreprocessor.kernel_name=python3 --execute analysis/my_notebook.ipynb
+      - name: Run single notebook using `papermill`
+        run: papermill -k python3 analysis/my_notebook.ipynb analysis/my_notebook_papermill.ipynb

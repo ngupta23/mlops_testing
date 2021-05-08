@@ -2,3 +2,7 @@ numpy
 pandas
 nbconvert
 papermill
+
+# If you want to run notebooks with Github Actions, you will either have to
+# install this manually in the workflow or add it to your requirements file.
+ipykernel
