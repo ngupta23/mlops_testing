@@ -38,7 +38,9 @@ jobs:
         python analysis/sum.py
         python analysis/diff.py
     - name: Run single notebook using `nbconvert`
-      run: jupyter nbconvert --to notebook --ExecutePreprocessor.kernel_name=python3 --execute analysis/my_notebook.ipynb
+      run: |
+        jupyter kernelspec list
+        jupyter nbconvert --to notebook --ExecutePreprocessor.kernel_name=python3 --execute analysis/my_notebook.ipynb       
     - name: Run single notebook using `papermill`
       run: papermill -k python3 analysis/my_notebook.ipynb analysis/my_notebook_papermill.ipynb
         
