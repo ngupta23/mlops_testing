@@ -9,7 +9,7 @@ on: workflow_dispatch
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  job_name_1:
+  my_job_name:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
@@ -62,7 +62,7 @@ jobs:
         run: |
           git config --local user.email "push@github.com"
           git config --local user.name "GitHub Action"
-          git add analysis/my_notebook_papermill.nbconvert.ipynb
+          git add analysis/my_notebook.nbconvert.ipynb
           git commit -m "Add notebook run by nbconvert through GitHub Actions"
           git add analysis/my_notebook_papermill.ipynb
           git commit -m "Add notebook run by papermill through GitHub Actions"
