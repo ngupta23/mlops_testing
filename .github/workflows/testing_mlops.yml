@@ -78,5 +78,5 @@ jobs:
       # Access secrets per https://docs.github.com/en/actions/reference/encrypted-secrets
       - name: Check access for secrets
         env: # Set the secret as an environment variable
-          EXAMPLE_API_KEY: ${{ secrets.SuperSecret }}
+          EXAMPLE_API_KEY: ${{ secrets.EXAMPLE_API_KEY }}
         run: python analysis/access_secret.py
