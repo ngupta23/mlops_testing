@@ -24,9 +24,16 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
     # Runs a single command using the runners shell
+    - name: Run single script
+      run: python analysis/sum.py        
     # If running multiple commands in sequence, we need to add | before the run
-    - name: Run scripts
+    - name: Run multiple scripts
       run: | 
         python analysis/sum.py
         python analysis/diff.py
