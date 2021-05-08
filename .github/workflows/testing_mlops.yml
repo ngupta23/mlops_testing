@@ -26,7 +26,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
     # Runs a single command using the runners shell
     - name: Run summing script
-      run: python analysis/sum.py
+      run: 
+        python analysis/sum.py
+        python analysis/diff.py
+        
       
 
 
