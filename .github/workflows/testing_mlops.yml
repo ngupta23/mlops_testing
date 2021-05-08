@@ -19,10 +19,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
       # Add dependencies including ipython and ipykernel. This is needed for
       # running notebooks with GitHub Actions.
       # Install and register an IPython kernel with Jupyter per
@@ -34,19 +36,41 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           python -m ipykernel install --user
+
       # Runs a single command using the runners shell
       - name: Run single script
         run: python analysis/sum.py
+
       # If running multiple commands in sequence, we need to add | before the run
       - name: Run multiple scripts
         run: |
           python analysis/sum.py
           python analysis/diff.py
+
       # Note that the listing of kernels is for informations purpose only
       # useful for determining what kernels can be used with the notebook.
       - name: Run single notebook using `nbconvert`
         run: |
           jupyter kernelspec list
           jupyter nbconvert --to notebook --ExecutePreprocessor.kernel_name=python3 --execute analysis/my_notebook.ipynb
+
       - name: Run single notebook using `papermill`
         run: papermill -k python3 analysis/my_notebook.ipynb analysis/my_notebook_papermill.ipynb
+
+      # commit files per https://github.community/t/possible-to-commit-files-after-workflow-runs/17824/2
+      - name: Commit files
+        run: |
+          git config --local user.email "push@github.com"
+          git config --local user.name "GitHub Action"
+          git add analysis/my_notebook_papermill.nbconvert.ipynb
+          git commit -m "Add notebook run by nbconvert through GitHub Actions"
+          git add analysis/my_notebook_papermill.ipynb
+          git commit -m "Add notebook run by papermill through GitHub Actions"
+
+      # push changes to your repo
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
