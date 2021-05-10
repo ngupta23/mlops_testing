@@ -137,7 +137,7 @@ jobs:
           git config --local user.email "push@github.com"
           git config --local user.name "GitHub Action"
           git add analysis/my_notebook_papermill.ipynb
-          git commit -m "Add notebook run by papermill through GitHub Actions"
+          git commit -m "Add notebook run by papermill through GitHub Actions (on develop branch)"
 
       # push changes to your repo
       # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
