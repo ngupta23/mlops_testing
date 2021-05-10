@@ -4,12 +4,17 @@ name: testing_mlops
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
-on: workflow_dispatch
+# workflow_dispatch = manually controlled
+# cron: 11th of every month (ref: https://jasonet.co/posts/scheduled-actions/)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "* * 11 * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  my_job_name:
+  # This workflow contains a job called "testing_from_main_branch"
+  testing_from_main_branch:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
@@ -47,7 +52,15 @@ jobs:
           python analysis/sum.py
           python analysis/diff.py
 
-      # Note that the listing of kernels is for informations purpose only
+      # If running command from a non default directory
+      # NOTE: The run command does not need the directory to be mentioned
+      # since by specifying the working directory, we esentially cd into it.
+      # https://github.community/t/how-to-handle-relative-paths-with-github-actions/158596/2
+      - name: Run from non-default directory
+        working-directory: ./analysis
+        run: python sum.py
+
+      # Note that the listing of kernels is for informational purpose only
       # useful for determining what kernels can be used with the notebook.
       - name: Run single notebook using `nbconvert`
         run: |
@@ -68,6 +81,10 @@ jobs:
           git commit -m "Add notebook run by papermill through GitHub Actions"
 
       # push changes to your repo
+      # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
+      # github.ref = The branch or tag ref that triggered the workflow run (CHECK: most likely `main`).
+      # For branches this in the format refs/heads/<branch_name>, and
+      # for tags it is refs/tags/<tag_name>.
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
@@ -80,3 +97,53 @@ jobs:
         with: # Set the secret as an input
           super_secret: ${{ secrets.SuperSecret }}
         run: python analysis/access_secret.py
+
+  # Job runs on a different branch compared to `main`
+  # Also commits files to a different branch compared to `main`
+  # This is useful when you want to run actions on development version of the code
+  testing_from_different_branch:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      # This will be run on the `develop` branch
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          python -m ipykernel install --user
+
+      - name: Run single script (not on `main`, but on `develop`)
+        run: python analysis/multiply.py
+
+      # commit files per https://github.community/t/possible-to-commit-files-after-workflow-runs/17824/2
+      - name: Commit files
+        run: |
+          git config --local user.email "push@github.com"
+          git config --local user.name "GitHub Action"
+          git add analysis/my_notebook_papermill.ipynb
+          git commit -m "Add notebook run by papermill through GitHub Actions"
+
+      # push changes to your repo
+      # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
+      # github.ref = The branch or tag ref that triggered the workflow run (CHECK: most likely `main`).
+      # For branches this in the format refs/heads/<branch_name>, and
+      # for tags it is refs/tags/<tag_name>.
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
