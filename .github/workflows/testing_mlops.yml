@@ -5,11 +5,11 @@ name: testing_mlops
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 # workflow_dispatch = manually controlled
-# cron: 11th of every month (ref: https://jasonet.co/posts/scheduled-actions/)
+# cron: 13th of every month at 12:15pm UTC (ref: https://jasonet.co/posts/scheduled-actions/)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "* * 11 * *"
+    - cron: "15 12 13 * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
